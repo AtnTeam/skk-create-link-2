@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SKAK неймінг</title>
+  <style>
+    /* CSS Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .field {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input,
+    select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    /* Стилізація кнопок */
+    .btn {
+      background-color: #28a745;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: #218838;
+    }
+
+    .btn:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .result {
+      background-color: #e9ecef;
+      padding: 10px;
+      border-radius: 4px;
+      word-wrap: break-word;
+      font-size: 0.9rem;
+      color: #333;
+      min-height: 40px;
+      flex: 1;
+    }
+
+    .copy-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Результати налаштувань - окремий блок */
+    .result-container {
+      margin-top: 30px;
+      padding: 15px;
+      border: 2px dashed #007bff;
+      border-radius: 8px;
+      background-color: #f1f9ff;
+    }
+
+    .result-container h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #007bff;
+    }
+
+    /* Блок інструкції */
+    .instruction-container {
+      margin-top: 15px;
+    }
+
+    .instruction-toggle {
+      cursor: pointer;
+      color: #007bff;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+    }
+
+    .instruction-toggle span {
+      transition: transform 0.3s ease;
+    }
+
+    .instruction-content {
+      display: none;
+      margin-top: 10px;
+    }
+
+    /* Виділення обов'язкових полів */
+    .required-field {
+      border: 2px solid #dc3545 !important;
+    }
+
+    .required-field.filled {
+      border: 2px solid #28a745 !important;
+    }
+
+    /* Стилізація iframe */
+    #previewFrame {
+      width: 100%;
+      height: 400px;
+      border: none;
+      margin-top: 15px;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 600px) {
+      input,
+      select,
+      .btn {
+        width: 100%;
+      }
+
+      .copy-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    
+.pwa-container {margin-top: 30px;}
+
+    /* Стилізація заголовка PWA */
+    .pwa-header {
+      background-color: #d4edda;
+      border: 2px solid #28a745;
+      border-radius: 8px;
+      padding: 10px;
+      color: #155724;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    /* Стилізація інформаційного повідомлення для PWA */
+    .pwa-info {
+      font-size: 0.95rem;
+      /* color: #28a745; */
+      margin-bottom: 15px;
+
+    }
+
+    /* Стилізація зображення */
+    .pwa-image {
+      max-width: 100%;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>SKAK неймінг</h1>
+
+    <!-- Налаштування -->
+    <!-- Блок інструкції для Link from Keitaro -->
+    <div class="instruction-container">
+      <div class="instruction-toggle" onclick="toggleInstructionLink()">
+        <span id="toggleArrowLink">➕</span>
+        <span>Показати інструкцію</span>
+      </div>
+      <div class="instruction-content" id="instructionContentLink">
+        <img src="images/1.png" alt="Інструкція для Link from Keitaro" style="max-width:100%; border-radius: 4px;">
+      </div>
+    </div>
+    <div class="field">
+      <label for="linkInput">Link from Keitaro:</label>
+      <input type="text" id="linkInput" placeholder="Вставте посилання з параметрами">
+    </div>
+
+    <div class="field">
+      <label for="teamSelect">Команда:</label>
+      <select id="teamSelect"></select>
+    </div>
+
+    <div class="field">
+      <label for="bayerSelect">Баєр: <small>(обов’язково)</small></label>
+      <select id="bayerSelect" class="required-field"></select>
+    </div>
+
+    <div class="field">
+      <label for="sub1">sub1:</label>
+      <input type="text" id="sub1">
+    </div>
+
+    <div class="field">
+      <label for="sub2">sub2: <small>(обов’язково, заповнюється автоматично при виборі баєра)</small></label>
+      <input type="text" id="sub2" class="required-field">
+    </div>
+
+    <div class="field">
+      <label for="sub3">sub3: <small>(обов’язково)</small></label>
+      <input type="text" id="sub3" class="required-field" placeholder="поток в Кейтаро  pl1, pl2 ... de1, de2 ...">
+    </div>
+
+    <div class="field">
+      <label for="sub4">sub4:</label>
+      <input type="text" id="sub4">
+    </div>
+
+    <div class="field">
+      <label for="sub5">sub5:</label>
+      <input type="text" id="sub5">
+    </div>
+
+    <div class="field">
+      <label for="sub6">sub6:</label>
+      <input type="text" id="sub6">
+    </div>
+
+    <!-- Видалені поля: pixel та ID SKAK APP -->
+
+    <!-- Результати налаштувань -->
+    <div class="result-container">
+      <h2>Результати налаштувань</h2>
+
+      <!-- Блок інструкції для результатів -->
+      <div class="instruction-container">
+        <div class="instruction-toggle" onclick="toggleInstruction()">
+          <span id="toggleArrow">➕</span>
+          <span>Показати інструкцію</span>
+        </div>
+        <div class="instruction-content" id="instructionContent">
+          <img src="images/2.png" alt="Інструкція" style="max-width:100%; border-radius: 4px;">
+        </div>
+      </div>
+      <div class="field">
+        <strong>неймінг назва <span style="color: red;"> поз.1</span>:</strong>
+        <div class="copy-group">
+          <div class="result" id="naming"></div>
+          <button class="btn" id="copyNamingBtn" onclick="copyNaming()">Копіювати</button>
+        </div>
+      </div>
+      <div class="field">
+        <strong>неймінг URL <span style="color: red;"> поз.2</span>:</strong>
+        <div class="copy-group">
+          <div class="result" id="resultLink"></div>
+          <button class="btn" id="copyLinkBtn" onclick="copyLink()">Копіювати</button>
+          <button class="btn" id="checkLinkBtn" onclick="checkLink()">Перевірити</button>
+        </div>
+      </div>
+
+      <iframe id="previewFrame" src=""></iframe>
+    </div>
+
+    <!-- Новий блок для PWA -->
+    <div class="pwa-container">
+      <h3 class="pwa-header">⚠️ Після того, як SKAK видасть домен PWA</h3>
+      <p class="pwa-info">
+        до домена потрібно додати "хвіст" <i> <b>utm_source={{placement}}&utm_medium={{campaign.id}}&utm_campaign={{ad.id}}&utm_content={{ad.name}}</b></i> – це потрібно для того, щоб в колонках Кейтаро відображались дані (назви колонок як на фото) ⬇️:
+      </p>
+      <img class="pwa-image" src="images/kt.png" alt="Фото колонок Кейтаро">
+      <div class="field">
+        <label for="pwaDomainInput">Домен PWA (повинен містити <strong>https://</strong>):</label>
+        <input type="text" id="pwaDomainInput" placeholder="https://example.com">
+      </div>
+      <div class="field">
+        <strong>PWA URL:</strong>
+        <div class="copy-group">
+          <div class="result" id="resultPwa"></div>
+          <button class="btn" id="copyPwaBtn" onclick="copyPwa()">Копіювати</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Масиви даних
+    const teams = [{ name: "NDA" }];
+    const bayers = [
+      { name: "dmt", marker: "dmt" },
+      { name: "chpa", marker: "chpa" },
+      { name: "prm", marker: "prm" },
+      { name: "ily", marker: "ily" },
+      { name: "kla", marker: "kla" },
+      { name: "van", marker: "van" },
+      { name: "rstk", marker: "rstk" },
+      { name: "nat29", marker: "nat29" },
+      { name: "alx30", marker: "alx30" },
+      { name: "yrv31", marker: "yrv31" },
+    ];
+
+    // Функція для заповнення select-елементів
+    function populateSelect(selectId, items, defaultOptionText = null) {
+      const select = document.getElementById(selectId);
+      if (defaultOptionText !== null) {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = defaultOptionText;
+        select.appendChild(defaultOption);
+      }
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.name;
+        option.textContent = item.name;
+        select.appendChild(option);
+      });
+    }
+
+    populateSelect("teamSelect", teams);
+    populateSelect("bayerSelect", bayers, "Виберіть баєра");
+
+    let templateLink = "";
+
+    // Валідація обов’язкових полів: Баєр, sub2 та sub3
+    function validateRequiredFields() {
+      const bayer = document.getElementById("bayerSelect").value.trim();
+      const sub2 = document.getElementById("sub2").value.trim();
+      const sub3 = document.getElementById("sub3").value.trim();
+      return bayer !== "" && sub2 !== "" && sub3 !== "";
+    }
+
+    function updateCopyButtons() {
+      const valid = validateRequiredFields();
+      document.getElementById("copyLinkBtn").disabled = !valid;
+      document.getElementById("copyNamingBtn").disabled = !valid;
+    }
+
+    function updateLink() {
+      if (!templateLink) {
+        document.getElementById("resultLink").textContent = "";
+        return;
+      }
+      let updatedLink = templateLink;
+      const sub1 = document.getElementById("sub1").value;
+      const sub2 = document.getElementById("sub2").value;
+      const sub3 = document.getElementById("sub3").value;
+      const sub4 = document.getElementById("sub4").value;
+      const sub5 = document.getElementById("sub5").value;
+      const sub6 = document.getElementById("sub6").value;
+
+      if (sub1.trim() !== "") {
+        updatedLink = updatedLink.replace("{sn_sub1}", sub1);
+      }
+      if (sub2.trim() !== "") {
+        updatedLink = updatedLink.replace("{sn_sub2}", sub2);
+      }
+      if (sub3.trim() !== "") {
+        updatedLink = updatedLink.replace("{sn_sub3}", sub3);
+      }
+      if (sub4.trim() !== "") {
+        updatedLink = updatedLink.replace("{sn_sub4}", sub4);
+      }
+      if (sub5.trim() !== "") {
+        updatedLink = updatedLink.replace("{sn_sub5}", sub5);
+      }
+      if (sub6.trim() !== "") {
+        updatedLink = updatedLink.replace("{sn_sub6}", sub6);
+      }
+
+      document.getElementById("resultLink").textContent = updatedLink;
+      updateCopyButtons();
+    }
+
+    function updateNaming() {
+      const team = document.getElementById("teamSelect").value;
+      const bayerName = document.getElementById("bayerSelect").value;
+      const buyer = bayers.find(b => b.name === bayerName);
+      const bayerMarker = buyer ? buyer.marker : "";
+      const sub3 = document.getElementById("sub3").value;
+      const naming = team + "_" + bayerMarker + "_" + sub3;
+      document.getElementById("naming").textContent = naming;
+    }
+
+    // Оновлення стилів для required полів (без pixel)
+    function updateRequiredFieldStyles() {
+      const requiredIds = ["bayerSelect", "sub2", "sub3"];
+      requiredIds.forEach(id => {
+        const field = document.getElementById(id);
+        if (field.value.trim() !== "") {
+          field.classList.add("filled");
+        } else {
+          field.classList.remove("filled");
+        }
+      });
+    }
+
+    // Слухачі для обов’язкових полів
+    ["bayerSelect", "sub2", "sub3"].forEach(id => {
+      document.getElementById(id).addEventListener("input", () => {
+        updateRequiredFieldStyles();
+        updateLink();
+        if (id === "sub3") updateNaming();
+        updateCopyButtons();
+      });
+    });
+
+    // Слухачі для інших sub-полів
+    ["sub1", "sub4", "sub5", "sub6"].forEach(id => {
+      document.getElementById(id).addEventListener("input", () => {
+        updateLink();
+        if (id === "sub3") updateNaming();
+      });
+    });
+
+    document.getElementById("linkInput").addEventListener("input", function () {
+      templateLink = this.value;
+      updateLink();
+    });
+
+    // При зміні вибору баєра оновлюємо sub2 (дублюємо marker) та інші поля
+    document.getElementById("bayerSelect").addEventListener("change", function () {
+      const selectedName = this.value;
+      const selectedBayer = bayers.find(b => b.name === selectedName);
+      if (selectedBayer) {
+        document.getElementById("sub2").value = selectedBayer.marker;
+        updateLink();
+        updateNaming();
+      } else {
+        document.getElementById("sub2").value = "";
+        updateLink();
+      }
+      updateRequiredFieldStyles();
+      updateCopyButtons();
+    });
+
+    document.getElementById("teamSelect").addEventListener("change", updateNaming);
+    document.getElementById("sub3").addEventListener("input", updateCopyButtons);
+
+    function copyLink() {
+      if (!validateRequiredFields()) {
+        alert("Будь ласка, заповніть обов'язкові поля: Баєр, sub2 та sub3.");
+        return;
+      }
+      const text = document.getElementById("resultLink").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Оновлене посилання скопійовано!");
+      }).catch(() => {
+        alert("Не вдалося скопіювати посилання.");
+      });
+    }
+
+    function copyNaming() {
+      if (!validateRequiredFields()) {
+        alert("Будь ласка, заповніть обов'язкові поля: Баєр, sub2 та sub3.");
+        return;
+      }
+      const text = document.getElementById("naming").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Неймінг скопійовано!");
+      }).catch(() => {
+        alert("Не вдалося скопіювати неймінг.");
+      });
+    }
+
+    // Завантаження посилання в iframe при кліку на кнопку "Перевірити"
+    function checkLink() {
+      if (!validateRequiredFields()) {
+        alert("Будь ласка, заповніть обов'язкові поля: Баєр, sub2 та sub3.");
+        return;
+      }
+      const link = document.getElementById("resultLink").textContent;
+      if (link.trim() !== "") {
+        document.getElementById("previewFrame").src = link;
+      } else {
+        alert("Посилання не сформовано.");
+      }
+    }
+
+    // Функція для перемикання видимості блоку інструкції (для Результатів)
+    function toggleInstruction() {
+      const content = document.getElementById("instructionContent");
+      const arrow = document.getElementById("toggleArrow");
+      if (content.style.display === "none" || content.style.display === "") {
+        content.style.display = "block";
+        arrow.textContent = "➖";
+      } else {
+        content.style.display = "none";
+        arrow.textContent = "➕";
+      }
+    }
+
+    // Функція для перемикання видимості блоку інструкції (для Link from Keitaro)
+    function toggleInstructionLink() {
+      const content = document.getElementById("instructionContentLink");
+      const arrow = document.getElementById("toggleArrowLink");
+      if (content.style.display === "none" || content.style.display === "") {
+        content.style.display = "block";
+        arrow.textContent = "➖";
+      } else {
+        content.style.display = "none";
+        arrow.textContent = "➕";
+      }
+    }
+
+    // НОВА ЛОГІКА ДЛЯ PWA
+    function updatePwaLink() {
+      const domain = document.getElementById("pwaDomainInput").value.trim();
+      let pwaUrl = "";
+      if (domain.startsWith("https://")) {
+        pwaUrl = domain + "?utm_source={{placement}}&utm_medium={{campaign.id}}&utm_campaign={{ad.id}}&utm_content={{ad.name}}";
+      }
+      document.getElementById("resultPwa").textContent = pwaUrl;
+    }
+
+    function copyPwa() {
+      const pwaUrl = document.getElementById("resultPwa").textContent;
+      if (!pwaUrl) {
+        alert("Будь ласка, введіть коректний домен PWA, який починається з https://");
+        return;
+      }
+      navigator.clipboard.writeText(pwaUrl).then(() => {
+        alert("PWA URL скопійовано!");
+      }).catch(() => {
+        alert("Не вдалося скопіювати PWA URL.");
+      });
+    }
+
+    document.getElementById("pwaDomainInput").addEventListener("input", updatePwaLink);
+
+    updateRequiredFieldStyles();
+    updateCopyButtons();
+  </script>
+</body>
+
+</html>
